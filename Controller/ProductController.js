@@ -164,10 +164,10 @@ module.exports = {
             upload(req, res, (err) => {
                 if (err) return res.status(500).send(err)
                 const { image } = req.files
-                const imagePath = image ? path + '/' + image[0].filename : null
+                const imagepath = image ? path + '/' + image[0].filename : null
 
                 const data = JSON.parse(req.body.data)
-                data.imagepath = imagePath
+                data.imagePath = imagepath
 
                 // console.table(data.jumlahstock)
                 // console.table(data)
@@ -176,6 +176,9 @@ module.exports = {
                     return [val.id, val.productId, val.sizeId, val.priceId, val.jumlahstock]
                 })
                 // console.log(stock)
+
+                let editImage = data.editImage
+                console.log(editImage)
 
                 const queryEditProduct = `UPDATE products SET ? WHERE id = ${database.escape(req.params.id)}`
                 database.query(queryEditProduct, data.dataproduct, (err, results) => {
@@ -186,7 +189,19 @@ module.exports = {
                     const queryEditStock = `INSERT INTO stock (id, productId, sizeId, priceId, jumlahstock) VALUES ? ON DUPLICATE KEY UPDATE sizeId = VALUES(sizeId), priceId = VALUES(priceId), jumlahstock = VALUES(jumlahstock)`
                     database.query(queryEditStock, [stock], (err, results) => {
                         if (err) return res.status(500).send(err)
-                        res.status(200).send(results)
+                        if (editImage) {
+                            const queryEditImage = `UPDATE products SET imagePath = '${data.imagePath}' WHERE id = ${database.escape(req.params.id)}`
+                            database.query(queryEditImage, (err, results3) => {
+                                console.log('editimage success')
+                                if (err) return res.status(500).send(err)
+                                res.status(200).send(results)
+                            })
+                        } else {
+                            // console.log(sendData)
+                            // console.log('last results', results2)
+                            res.status(200).send(results)
+                            console.log('edit product success')
+                        }
                     })
                 })
             })

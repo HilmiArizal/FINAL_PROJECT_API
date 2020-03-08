@@ -14,7 +14,7 @@ module.exports = {
 
     },
     getCart: (req, res) => {
-        const queryGetCart = `SELECT u.username, p.productname, p.imagePath, s.size, pr.price, c.qty, c.totalprice
+        const queryGetCart = `SELECT c.id, u.username, p.productname, p.imagePath, s.size, pr.price, c.qty, c.totalprice
         FROM cart c
         JOIN users u ON c.userId = u.id
         JOIN products p ON c.productId = p.id
@@ -35,6 +35,14 @@ module.exports = {
         JOIN price pr ON c.priceId = pr.id
         WHERE u.id = ${req.user.id}`
         database.query(queryGetValueCart, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    deleteCart: (req, res) => {
+        let cartId = parseInt(req.params.id)
+        const queryDeleteCart = `DELETE FROM cart WHERE id = ${req.query.id}`
+        database.query(queryDeleteCart, [cartId], (err, results) => {
             if (err) return res.status(500).send(err)
             res.status(200).send(results)
         })
