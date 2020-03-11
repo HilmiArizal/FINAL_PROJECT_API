@@ -9,7 +9,7 @@ module.exports = {
         const query = `SELECT * FROM users`
         database.query(query, (err, results) => {
             if (err) return res.status(500).send(err)
-            return res.status(200).send(results)
+            res.status(200).send(results)
         })
     },
     loginUsers: (req, res) => {
@@ -28,7 +28,7 @@ module.exports = {
                 return res.status(401).send('INVALID PASSWORD')
             // EVERYTHING IS OK
             const token = createJWTToken({ ...results[0] })
-            return res.status(200).send({ ...results[0], token })
+            res.status(200).send({ ...results[0], token })
         })
     },
     keepLogin: (req, res) => {
@@ -36,15 +36,12 @@ module.exports = {
         database.query(queryKeepLogin, (err, results) => {
             if (err) return res.status(500).send(err)
             const { id, username, password, email, role } = results[0]
-            const token = createJWTToken({
-                id, username, password, email, role
-            })
-            return res.status(200).send({ ...results[0], token })
+            const token = createJWTToken({ ...results[0] })
+            res.status(200).send({ ...results[0], token })
         })
     },
     registerUsers: (req, res) => {
         // console.log(req.body)
-        console.log('masuk')
         const { username, email, password } = req.body
         const hashPassword = Crypto.createHmac('sha256', 'secretKey').update(password).digest('hex')
         const queryRegister = `INSERT into users (username, email, password, role) VALUES ('${username}', '${email}', '${hashPassword}', 'user');`
@@ -53,6 +50,7 @@ module.exports = {
             const queryUsername = `SELECT * FROM users WHERE username = '${username}';`
             database.query(queryUsername, (err, results) => {
                 if (err) return res.status(500).send(err)
+
                 const { id, username, email, password, role, verified } = results[0]
                 const token = createJWTToken({ ...results[0] })
 
@@ -69,7 +67,7 @@ module.exports = {
                 }
                 transporter.sendMail(mailOption, (err, results) => {
                     if (err) return res.status(500).send(err)
-                    return res.status(200).send({ ...results[0], token })
+                    res.status(200).send({ ...results[0], token })
                 })
             })
         })
@@ -85,4 +83,59 @@ module.exports = {
             })
         })
     },
+    editPassword: (req, res) => {
+        const id = parseInt(req.params.id)
+        const { oldpassword, newpassword } = req.body
+        const hashOldPassword = Crypto.createHmac('sha256', 'secretKey').update(oldpassword).digest('hex')
+        const queryUser = `SELECT * FROM users WHERE password = '${hashOldPassword}' AND id = ${id}`
+        database.query(queryUser, (err, results) => {
+            if (err) return res.status(500).send(err)
+
+            const hashNewPassword = Crypto.createHmac('sha256', 'secretKey').update(newpassword).digest('hex')
+            if (results && results.length !== 0) {
+                const queryEditPassword = `UPDATE users SET password = '${hashNewPassword}' WHERE id = ${id}`;
+                database.query(queryEditPassword, (err, results2) => {
+                    if (err) return res.status(500).send(err)
+                    res.status(200).send(results2)
+                })
+            } else {
+                return res.status(401).send('INVALID PASSWORD')
+            }
+        })
+    },
+    getProfileUser: (req, res) => {
+        const id = parseInt(req.params.id)
+        let queryGetProfile = `SELECT u.*, g.id AS idGender, g.gender, j.id AS idJob, j.job
+        FROM users u
+        LEFT JOIN gender g ON u.genderId = g.id
+        LEFT JOIN job j ON u.jobId = j.id
+        WHERE u.id = ${id}`
+        database.query(queryGetProfile, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    editProfileUser: (req, res) => {
+        const id = parseInt(req.params.id)
+        const { firstname, lastname, age, genderId, jobId, address } = req.body
+        let queryEditProfile = `UPDATE users SET firstname = '${firstname}', lastname = '${lastname}', age = '${age}', genderId = '${genderId}', jobId = '${jobId}', address = '${address}' WHERE id = '${id}'`
+        database.query(queryEditProfile, req.body, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    getGenderUser: (req, res) => {
+        const queryGetGender = `SELECT * FROM gender`
+        database.query(queryGetGender, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    getJobUser: (req, res) => {
+        const queryGetGender = `SELECT * FROM job`
+        database.query(queryGetGender, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    }
 }

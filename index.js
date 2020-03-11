@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
     res.status(200).send(`<h1> Welcome My API </h1>`)
 })
 
-const { userRouter, productRouter, cartRouter } = require('./Router')
+const { userRouter, productRouter, cartRouter} = require('./Router')
 
 app.use('/users', userRouter)
 app.use('/products', productRouter)

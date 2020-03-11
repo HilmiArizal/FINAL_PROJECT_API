@@ -200,7 +200,6 @@ module.exports = {
                             // console.log(sendData)
                             // console.log('last results', results2)
                             res.status(200).send(results)
-                            console.log('edit product success')
                         }
                     })
                 })
