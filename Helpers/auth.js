@@ -5,7 +5,7 @@ module.exports = {
         if (req.method !== 'OPTIONS') {
             jwt.verify(req.token, 'secretKey', (error, decoded) => {
                 if (error) {
-                    console.log(error)
+                    // console.log(error)
                     return res.status(401).json({
                         message: 'User Not Authorized'
                     })

@@ -178,7 +178,7 @@ module.exports = {
                 // console.log(stock)
 
                 let editImage = data.editImage
-                console.log(editImage)
+                // console.log(editImage)
 
                 const queryEditProduct = `UPDATE products SET ? WHERE id = ${database.escape(req.params.id)}`
                 database.query(queryEditProduct, data.dataproduct, (err, results) => {

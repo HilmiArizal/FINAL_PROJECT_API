@@ -35,7 +35,7 @@ module.exports = {
         let queryKeepLogin = `SELECT * FROM users WHERE id = ${req.user.id}`
         database.query(queryKeepLogin, (err, results) => {
             if (err) return res.status(500).send(err)
-            const { id, username, password, email, role } = results[0]
+            const { username, password, email, role } = results[0]
             const token = createJWTToken({ ...results[0] })
             res.status(200).send({ ...results[0], token })
         })
@@ -51,7 +51,7 @@ module.exports = {
             database.query(queryUsername, (err, results) => {
                 if (err) return res.status(500).send(err)
 
-                const { id, username, email, password, role, verified } = results[0]
+                const { username, email, password, role, verified } = results[0]
                 const token = createJWTToken({ ...results[0] })
 
                 let verificationLink = `http://localhost:3000/verified?token=${token}`
@@ -117,9 +117,18 @@ module.exports = {
     },
     editProfileUser: (req, res) => {
         const id = parseInt(req.params.id)
-        const { firstname, lastname, age, genderId, jobId, address } = req.body
-        let queryEditProfile = `UPDATE users SET firstname = '${firstname}', lastname = '${lastname}', age = '${age}', genderId = '${genderId}', jobId = '${jobId}', address = '${address}' WHERE id = '${id}'`
+        const { firstname, lastname, age, phonenumber, genderId, jobId, address } = req.body
+        let queryEditProfile = `UPDATE users SET firstname = '${firstname}', lastname = '${lastname}', phonenumber = '${phonenumber}', age = '${age}', genderId = '${genderId}', jobId = '${jobId}', address = '${address}' WHERE id = '${id}'`
         database.query(queryEditProfile, req.body, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    editProfileUserTransaction: (req, res) => {
+        const id = parseInt(req.params.id)
+        const { firstname, lastname, phonenumber, address } = req.body
+        let queryEditProfileTransaction = `UPDATE users SET firstname = '${firstname}', lastname = '${lastname}', phonenumber = '${phonenumber}', address = '${address}' WHERE id = '${id}'`
+        database.query(queryEditProfileTransaction, req.body, (err, results) => {
             if (err) return res.status(500).send(err)
             res.status(200).send(results)
         })

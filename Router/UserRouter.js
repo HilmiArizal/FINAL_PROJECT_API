@@ -11,6 +11,7 @@ router.post('/emailverification', auth, userController.emailVerification);
 router.patch('/editPassword/:id', userController.editPassword)
 router.get('/getProfileUser/:id', userController.getProfileUser);
 router.patch('/editProfileUser/:id', userController.editProfileUser)
+router.patch('/editProfileUserTransaction/:id', userController.editProfileUserTransaction)
 router.get('/getGender', userController.getGenderUser)
 router.get('/getJob', userController.getJobUser)
 
