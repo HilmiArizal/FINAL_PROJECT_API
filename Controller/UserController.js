@@ -2,6 +2,8 @@ const database = require('../Database');
 const { createJWTToken } = require('../Helpers/jwt')
 const Crypto = require('crypto');
 const transporter = require('../Helpers/nodemailer')
+const { uploader } = require('../Helpers/uploader')
+const fs = require('fs');
 
 module.exports = {
     getAllUsers: (req, res) => {
@@ -116,13 +118,67 @@ module.exports = {
         })
     },
     editProfileUser: (req, res) => {
-        const id = parseInt(req.params.id)
-        const { firstname, lastname, age, phonenumber, genderId, jobId, address } = req.body
-        let queryEditProfile = `UPDATE users SET firstname = '${firstname}', lastname = '${lastname}', phonenumber = '${phonenumber}', age = '${age}', genderId = '${genderId}', jobId = '${jobId}', address = '${address}' WHERE id = '${id}'`
-        database.query(queryEditProfile, req.body, (err, results) => {
-            if (err) return res.status(500).send(err)
-            res.status(200).send(results)
-        })
+        try {
+            const path = '/images'
+            const upload = uploader(path, 'IMG').fields([{ name: 'image' }])
+            upload(req, res, (err) => {
+                // console.log('ini', req.files.image)
+                if (err) {
+                    console.log(err)
+                    return res.status(500).send(err)
+                }
+                const { image } = req.files
+                // console.log('ini', image)
+                const imagepath = image ? path + '/' + image[0].filename : null
+                const profilecomplete = JSON.parse(req.body.profilecomplete)
+                profilecomplete.imagePath = imagepath
+
+
+                let changeimage = profilecomplete.changeImage
+
+                const id = parseInt(req.params.id)
+                const { firstname, lastname, age, phonenumber, genderId, jobId, address } = profilecomplete.dataprofile
+                console.log(profilecomplete.dataprofile)
+                let queryEditProfile = `UPDATE users SET firstname = '${firstname}', lastname = '${lastname}', phonenumber = '${phonenumber}', age = '${age}', genderId = '${genderId}', jobId = '${jobId}', address = '${address}' WHERE id = ${id}`
+                database.query(queryEditProfile, profilecomplete.dataprofile, (err, results) => {
+                    if (err) {
+                        fs.unlinkSync('./Public' + imagepath)
+                        console.log(err)
+                        return res.status(500).send(err)
+                    }
+                    let queryGetProfile = `SELECT * FROM users WHERE id = ${id}`
+                    database.query(queryGetProfile, (err, results2) => {
+                        // console.log(results2)
+                        if (err) {
+                            return res.status(500).send(err)
+                        } else if (results2 !== 0) {
+                            if (changeimage) {
+                                console.log('editsuccesss')
+                                console.log(changeimage)
+                                const queryEditImage = `UPDATE users SET imagePath = '${profilecomplete.imagePath}' WHERE id = ${id}`
+                                database.query(queryEditImage, (err, results3) => {
+                                    // fs.unlinkSync('./Public' + imagePath)
+                                    if (err) {
+                                        console.log(err)
+                                        fs.unlinkSync('./Public' + imagepath)
+                                        return res.status(500).send(err)
+                                    }
+                                    if (image) {
+                                        fs.unlinkSync('./Public' + results2[0].imagePath)
+                                    }
+                                    res.status(200).send(results)
+                                })
+                            } else {
+                                res.status(200).send(results)
+                            }
+                        }
+                    })
+
+                })
+            })
+        } catch (err) {
+            console.log(err)
+        }
     },
     editProfileUserTransaction: (req, res) => {
         const id = parseInt(req.params.id)

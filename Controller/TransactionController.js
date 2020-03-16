@@ -24,8 +24,8 @@ module.exports = {
         })
     },
     addTransaction: (req, res) => {
-        const { userId, totaltransaction, datetransaction } = req.body
-        const queryAddTransaction = `INSERT INTO transaction (userId, totaltransaction, datetransaction) VALUES (${userId}, ${totaltransaction}, '${datetransaction}')`
+        const { userId, totaltransaction, datetransaction, timescart } = req.body
+        const queryAddTransaction = `INSERT INTO transaction (userId, totaltransaction, datetransaction, timescart) VALUES (${userId}, ${totaltransaction}, '${datetransaction}', '${timescart}')`
         database.query(queryAddTransaction, req.body, (err, results) => {
             if (err) return res.status(500).send(err)
             res.status(200).send(results)
@@ -42,9 +42,9 @@ module.exports = {
         const data = req.body
         data.cart.datetransaction=req.body.datetransaction
         let detailtransaction = data.cart.map((item) => {
-            return [item.username, item.productname, item.imagePath, item.size, item.price, item.qty, item.totalprice,req.body.datetransaction]
+            return [item.username, item.productname, item.imagePath, item.size, item.price, item.qty, item.totalprice,req.body.datetransaction, req.body.timescart]
         })
-        const queryAddDetailTransaction = `INSERT INTO detailtransaction (username, productname, imagePath, size, price, qty, totalprice, datetransaction) VALUES ?`
+        const queryAddDetailTransaction = `INSERT INTO detailtransaction (username, productname, imagePath, size, price, qty, totalprice, datetransaction, timescart) VALUES ?`
         database.query(queryAddDetailTransaction, [detailtransaction], (err, results) => {
             if (err) {
                 return res.status(500).send(err)
@@ -61,5 +61,6 @@ module.exports = {
             }
             res.status(200).send(results)
         })
-    }
+    },
+    
 }

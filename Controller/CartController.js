@@ -3,13 +3,14 @@ const database = require('../Database');
 module.exports = {
     addToCart: (req, res) => {
         const { userId, productId, sizeId, priceId, qty, totalprice } = req.body
+        console.log(req.body)
         const queryAddToCart = `INSERT INTO cart (userId, productId, sizeId, priceId, qty, totalprice) 
-        VALUES (${userId}, ${productId}, ${sizeId}, ${priceId}, ${qty}, ${totalprice}) `
+        VALUES (${userId}, ${productId}, ${sizeId}, ${priceId}, ${qty}, ${totalprice})`
         database.query(queryAddToCart, req.body, (err, results) => {
             if (err) {
                 return res.status(500).send(err)
             }
-            return res.status(200).send(results)
+            res.status(200).send(results)
         })
     },
     getCart: (req, res) => {

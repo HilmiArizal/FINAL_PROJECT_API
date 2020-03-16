@@ -189,6 +189,7 @@ module.exports = {
                     const queryEditStock = `INSERT INTO stock (id, productId, sizeId, priceId, jumlahstock) VALUES ? ON DUPLICATE KEY UPDATE sizeId = VALUES(sizeId), priceId = VALUES(priceId), jumlahstock = VALUES(jumlahstock)`
                     database.query(queryEditStock, [stock], (err, results) => {
                         if (err) return res.status(500).send(err)
+                        
                         if (editImage) {
                             const queryEditImage = `UPDATE products SET imagePath = '${data.imagePath}' WHERE id = ${database.escape(req.params.id)}`
                             database.query(queryEditImage, (err, results3) => {
