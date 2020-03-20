@@ -46,7 +46,7 @@ module.exports = {
         // console.log(req.body)
         const { username, email, password } = req.body
         const hashPassword = Crypto.createHmac('sha256', 'secretKey').update(password).digest('hex')
-        const queryRegister = `INSERT into users (username, email, password, role) VALUES ('${username}', '${email}', '${hashPassword}', 'user');`
+        const queryRegister = `INSERT INTO users (username, email, password, role) VALUES ('${username}', '${email}', '${hashPassword}', 'user');`
         database.query(queryRegister, req.body, (err, results) => {
             if (err) return res.status(500).send(err)
             const queryUsername = `SELECT * FROM users WHERE username = '${username}';`
