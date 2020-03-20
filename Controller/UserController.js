@@ -153,13 +153,13 @@ module.exports = {
                             return res.status(500).send(err)
                         } else if (results2 !== 0) {
                             if (changeimage) {
-                                console.log('editsuccesss')
+                                // console.log('editsuccesss')
                                 console.log(changeimage)
                                 const queryEditImage = `UPDATE users SET imagePath = '${profilecomplete.imagePath}' WHERE id = ${id}`
                                 database.query(queryEditImage, (err, results3) => {
                                     // fs.unlinkSync('./Public' + imagePath)
                                     if (err) {
-                                        console.log(err)
+                                        // console.log(err)
                                         fs.unlinkSync('./Public' + imagepath)
                                         return res.status(500).send(err)
                                     }

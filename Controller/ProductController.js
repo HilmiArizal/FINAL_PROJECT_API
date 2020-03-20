@@ -183,25 +183,41 @@ module.exports = {
                 const queryEditProduct = `UPDATE products SET ? WHERE id = ${database.escape(req.params.id)}`
                 database.query(queryEditProduct, data.dataproduct, (err, results) => {
                     if (err) {
-                        fs.unlinkSync('./Public' + imagePath)
+                        fs.unlinkSync('./Public' + imagepath)
                         return res.status(500).send(err)
                     }
                     const queryEditStock = `INSERT INTO stock (id, productId, sizeId, priceId, jumlahstock) VALUES ? ON DUPLICATE KEY UPDATE sizeId = VALUES(sizeId), priceId = VALUES(priceId), jumlahstock = VALUES(jumlahstock)`
                     database.query(queryEditStock, [stock], (err, results) => {
                         if (err) return res.status(500).send(err)
-                        
-                        if (editImage) {
-                            const queryEditImage = `UPDATE products SET imagePath = '${data.imagePath}' WHERE id = ${database.escape(req.params.id)}`
-                            database.query(queryEditImage, (err, results3) => {
-                                console.log('editimage success')
-                                if (err) return res.status(500).send(err)
-                                res.status(200).send(results)
-                            })
-                        } else {
-                            // console.log(sendData)
-                            // console.log('last results', results2)
-                            res.status(200).send(results)
-                        }
+
+                        const queryGetProduct = `SELECT * FROM products WHERE id = ${req.params.id}`
+                        database.query(queryGetProduct, (err, results2) => {
+                            console.log(results2)
+
+                            if (err) {
+                                return res.status(500).send(err)
+                            } else if (results2 !== 0) {
+                                if (editImage) {
+                                    const queryEditImage = `UPDATE products SET imagePath = '${data.imagePath}' WHERE id = ${database.escape(req.params.id)}`
+                                    database.query(queryEditImage, (err, results3) => {
+                                        console.log('editimage success')
+                                        if (err) {
+                                            fs.unlinkSync('./Public' + imagepath)
+                                            return res.status(500).send(err)
+                                        }
+                                        if (image) {
+                                            fs.unlinkSync('./Public' + results2[0].imagePath)
+                                        }
+                                        res.status(200).send(results)
+                                    })
+                                } else {
+                                    // console.log(sendData)
+                                    // console.log('last results', results2)
+                                    res.status(200).send(results)
+                                }
+                            }
+
+                        })
                     })
                 })
             })

@@ -9,6 +9,8 @@ router.post('/addTransaction', transactionController.addTransaction);
 router.get('/getDetailTransaction', transactionController.getDetailTransaction);
 router.post('/addDetailTransaction', transactionController.addDetailTransaction);
 router.put('/editStatus', transactionController.editStatus);
+router.get('/getAllTotal', transactionController.getAllTotalTransaction)
+router.get('/getProductPopuler', transactionController.getProductPopuler)
 
 
 module.exports = router;
