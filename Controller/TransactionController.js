@@ -3,18 +3,29 @@ const { uploader } = require('../Helpers/uploader');
 const fs = require('fs');
 
 module.exports = {
-    getAllTransaction: (req, res) => {
-        const queryGetAllTransaction = `SELECT tr.id AS idtransaction, tr.userId,tr.totaltransaction,tr.status,tr.datetransaction, tr.imagePath AS buktitransaksi, u.*
+    queryGetAllTransactionPaid: (req, res) => {
+        const queryGetAllTransactionPaid = `SELECT tr.id AS idtransaction, tr.userId,tr.totaltransaction,tr.status,tr.datetransaction, tr.imagePath AS buktitransaksi, u.*
         FROM transaction tr
-        JOIN users u ON tr.userId = u.id;`
-        database.query(queryGetAllTransaction, (err, results) => {
+        JOIN users u ON tr.userId = u.id
+        WHERE status = "PAID";`
+        database.query(queryGetAllTransactionPaid, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    queryGetAllTransactionOnProses: (req, res) => {
+        const queryGetAllTransactionProses = `SELECT tr.id AS idtransaction, tr.userId,tr.totaltransaction,tr.status,tr.datetransaction, tr.imagePath AS buktitransaksi, u.*
+        FROM transaction tr
+        JOIN users u ON tr.userId = u.id
+        WHERE status = "ON PROCESS";`
+        database.query(queryGetAllTransactionProses, (err, results) => {
             if (err) return res.status(500).send(err)
             res.status(200).send(results)
         })
     },
     getTransaction: (req, res) => {
         // console.log(req.user.id)
-        const getTransaction = `SELECT *
+        const getTransaction = `SELECT u.*, tr.id AS idtransaction, tr.totaltransaction, tr.status, tr.datetransaction, tr.timescart, tr.metodetransaksiId, tr.imagePath
         FROM transaction tr
         JOIN users u ON tr.userId = u.id
         WHERE tr.userId = ${req.user.id}`
@@ -31,7 +42,7 @@ module.exports = {
             const upload = uploader(path, 'IMG').fields([{ name: 'image' }])
             upload(req, res, (err) => {
                 if (err) {
-                    console.log(err)
+                    // console.log(err)
                     return res.status(500).send(err)
                 }
                 const { image } = req.files
@@ -66,26 +77,36 @@ module.exports = {
         const data = req.body
         data.cart.datetransaction = req.body.datetransaction
         let detailtransaction = data.cart.map((item) => {
-            return [item.username, item.productname, item.imagePath, item.size, item.price, item.qty, item.stockId, item.totalprice, req.body.datetransaction, req.body.timescart]
+            return [item.username, item.productname, item.imagePath, item.size, item.price, item.qty, item.stockId, item.totalprice, req.body.transactionId, req.body.datetransaction, req.body.timescart]
         })
-        const queryAddDetailTransaction = `INSERT INTO detailtransaction (username, productname, imagePath, size, price, qty, stockId, totalprice, datetransaction, timescart) VALUES ?`
+        const queryAddDetailTransaction = `INSERT INTO detailtransaction (username, productname, imagePath, size, price, qty, stockId, totalprice, transactionId, datetransaction, timescart) VALUES ?`
         database.query(queryAddDetailTransaction, [detailtransaction], (err, results) => {
             if (err) {
                 return res.status(500).send(err)
             }
-            // console.log(results)
-            const queryGetStock = `SELECT *
+            console.log(results)
+            const queryGetStock = `SELECT st.id AS idstock, st.jumlahstock, dt.qty, dt.transactionId
             FROM detailtransaction dt
             JOIN stock st ON dt.stockId = st.id
-            WHERE dt.id = ${results.insertId};`
+            WHERE dt.transactionId = ${req.body.transactionId};`
             database.query(queryGetStock, (err, results2) => {
                 console.log('stock', results2)
                 if (err) {
                     // console.log(err)
                     return res.status(500).send(err)
                 }
-                res.status(200).send(results)
+                results2.map((item) => {
+                    const queryUpdateStock = `UPDATE stock SET jumlahstock = ${item.jumlahstock} - ${item.qty} WHERE id = ${item.idstock}`
+                    database.query(queryUpdateStock, (err, results3) => {
+                        console.log('update', results3)
+                        if (err) {
+                            // console.log(err)
+                            return res.status(500).send(err)
+                        }
+                    })
+                })
             })
+            res.status(200).send(results)
         })
     },
     editStatus: (req, res) => {
@@ -99,7 +120,16 @@ module.exports = {
         })
     },
     getAllTotalTransaction: (req, res) => {
-        const queryGetAllTotal = `SELECT SUM(totaltransaction) AS alltotaltransaction, datetransaction FROM transaction GROUP BY datetransaction;`
+        const queryGetAllTotal = `SELECT SUM(totaltransaction) AS alltotaltransaction, datetransaction FROM transaction WHERE status = "PAID" GROUP BY datetransaction;`
+        database.query(queryGetAllTotal, (err, results) => {
+            if (err) {
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    getAllTotalTransactionProses: (req, res) => {
+        const queryGetAllTotal = `SELECT SUM(totaltransaction) AS alltotaltransaction, datetransaction FROM transaction WHERE status = "ON PROCESS" GROUP BY datetransaction;`
         database.query(queryGetAllTotal, (err, results) => {
             if (err) {
                 return res.status(500).send(err)

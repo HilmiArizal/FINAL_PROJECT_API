@@ -206,7 +206,12 @@ module.exports = {
                                             return res.status(500).send(err)
                                         }
                                         if (image) {
-                                            fs.unlinkSync('./Public' + results2[0].imagePath)
+                                            if(results2[0].imagePath === 0){
+                                                return null
+                                            }else{
+                                                fs.unlinkSync('./Public' + results2[0].imagePath)
+
+                                            }
                                         }
                                         res.status(200).send(results)
                                     })

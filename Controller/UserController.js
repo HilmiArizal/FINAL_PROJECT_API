@@ -154,7 +154,7 @@ module.exports = {
                         } else if (results2 !== 0) {
                             if (changeimage) {
                                 // console.log('editsuccesss')
-                                console.log(changeimage)
+                                // console.log(changeimage)
                                 const queryEditImage = `UPDATE users SET imagePath = '${profilecomplete.imagePath}' WHERE id = ${id}`
                                 database.query(queryEditImage, (err, results3) => {
                                     // fs.unlinkSync('./Public' + imagePath)
@@ -164,7 +164,11 @@ module.exports = {
                                         return res.status(500).send(err)
                                     }
                                     if (image) {
-                                        fs.unlinkSync('./Public' + results2[0].imagePath)
+                                        if(results2[0].imagePath === '/images/AKUNIMAGE.png'){
+                                            return null
+                                        }else{
+                                            fs.unlinkSync('./Public' + results2[0].imagePath)
+                                        }
                                     }
                                     res.status(200).send(results)
                                 })
