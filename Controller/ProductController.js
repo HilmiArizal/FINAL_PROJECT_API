@@ -12,7 +12,26 @@ module.exports = {
     },
     getAllProducts: (req, res) => {
         // console.log(req.query)
-        const query = `SELECT * FROM GetAllProduct_Complete;`
+        const query = `SELECT p.*, c.id AS idcategory, c.category, pr.id, pr.price, s.id AS idsize, s.size, st.id AS idstock, st.productId, st.sizeId, st.priceId, st.jumlahstock FROM products p
+        JOIN categories c ON p.productcategoryId = c.id
+        JOIN stock st ON p.id = st.productId
+        JOIN size s ON st.sizeId = s.id
+        JOIN price pr ON st.priceId = pr.id
+        ORDER BY c.category DESC;`
+        database.query(query, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    getGroupByCategory: (req, res) => {
+        // console.log(req.query)
+        const query = `SELECT p.*, c.id AS idcategory, c.category, pr.id, pr.price, s.id AS idsize, s.size, st.id AS idstock, st.productId, st.sizeId, st.priceId, st.jumlahstock FROM products p
+        JOIN categories c ON p.productcategoryId = c.id
+        JOIN stock st ON p.id = st.productId
+        JOIN size s ON st.sizeId = s.id
+        JOIN price pr ON st.priceId = pr.id
+        GROUP BY c.category
+        ORDER BY c.category DESC`
         database.query(query, (err, results) => {
             if (err) return res.status(500).send(err)
             res.status(200).send(results)

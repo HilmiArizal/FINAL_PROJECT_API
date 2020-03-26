@@ -69,6 +69,7 @@ module.exports = {
     getDetailTransaction: (req, res) => {
         const queryGetDetailTransaction = `SELECT * FROM detailtransaction WHERE username = '${req.query.username}'`
         database.query(queryGetDetailTransaction, (err, results) => {
+            // console.log(results)
             if (err) return res.status(500).send(err)
             res.status(200).send(results)
         })

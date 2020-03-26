@@ -21,13 +21,13 @@ module.exports = {
         database.query(queryLogin, (err, results) => {
             if (err) return res.status(500).send(err)
             // INPUT FULL DATA
-            if (username === '' || password === '') return res.status(401).send('FILL IN CORRECTLY!')
+            if (username === '' || password === '') return res.status(401).send('PLEASE, ISI DENGAN LENGKAP!')
             // CHECK USER
-            if (results.length === 0) return res.status(404).send('USER NOT FOUND')
+            if (results.length === 0) return res.status(404).send('USERNAME TIDAK DITEMUKAN')
             // CHECK PASSWORD
             const hashPassword = Crypto.createHmac('sha256', 'secretKey').update(password).digest('hex')
             if (hashPassword !== results[0].password)
-                return res.status(401).send('INVALID PASSWORD')
+                return res.status(401).send('PASSWORD SALAH')
             // EVERYTHING IS OK
             const token = createJWTToken({ ...results[0] })
             res.status(200).send({ ...results[0], token })
@@ -101,7 +101,7 @@ module.exports = {
                     res.status(200).send(results2)
                 })
             } else {
-                return res.status(401).send('INVALID PASSWORD')
+                return res.status(401).send('PASSWORD LAMA SALAH')
             }
         })
     },
