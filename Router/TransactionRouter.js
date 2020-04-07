@@ -3,9 +3,10 @@ const { transactionController } = require('../Controller');
 const router = express.Router();
 const { auth } = require('../Helpers/auth')
 
-router.get('/getAllTransactionPaid', transactionController.queryGetAllTransactionPaid);
-router.get('/getAllTransactionProses', transactionController.queryGetAllTransactionOnProses);
+router.get('/getAllTransactionPaid', transactionController.getAllTransactionPaid);
+router.get('/getAllTransactionProses', transactionController.getAllTransactionOnProses);
 router.get('/getTransaction', auth, transactionController.getTransaction);
+router.get('/getTransactionDate', transactionController.getTransactionGroupByDate);
 router.post('/addTransaction', transactionController.addTransaction);
 router.get('/getDetailTransaction', transactionController.getDetailTransaction);
 router.post('/addDetailTransaction', transactionController.addDetailTransaction);

@@ -3,7 +3,7 @@ const { uploader } = require('../Helpers/uploader');
 const fs = require('fs');
 
 module.exports = {
-    queryGetAllTransactionPaid: (req, res) => {
+    getAllTransactionPaid: (req, res) => {
         const queryGetAllTransactionPaid = `SELECT tr.id AS idtransaction, tr.userId,tr.totaltransaction,tr.status,tr.datetransaction, tr.imagePath AS buktitransaksi, u.*
         FROM transaction tr
         JOIN users u ON tr.userId = u.id
@@ -13,7 +13,7 @@ module.exports = {
             res.status(200).send(results)
         })
     },
-    queryGetAllTransactionOnProses: (req, res) => {
+    getAllTransactionOnProses: (req, res) => {
         const queryGetAllTransactionProses = `SELECT tr.id AS idtransaction, tr.userId,tr.totaltransaction,tr.status,tr.datetransaction, tr.imagePath AS buktitransaksi, u.*
         FROM transaction tr
         JOIN users u ON tr.userId = u.id
@@ -33,6 +33,13 @@ module.exports = {
             if (err) {
                 return res.status(500).send(err)
             }
+            res.status(200).send(results)
+        })
+    },
+    getTransactionGroupByDate: (req, res) => {
+        const queryGetTransactionDate = `SELECT * FROM transaction GROUP BY datetransaction`
+        database.query(queryGetTransactionDate, (err, results) => {
+            if(err) return res.status(500).send(err)
             res.status(200).send(results)
         })
     },

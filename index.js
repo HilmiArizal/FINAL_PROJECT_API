@@ -3,7 +3,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const bearerToken = require('express-bearer-token');
 
-
 const app = express()
 
 app.use(cors())
