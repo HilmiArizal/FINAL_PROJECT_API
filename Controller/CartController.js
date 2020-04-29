@@ -78,5 +78,14 @@ module.exports = {
             if (err) return res.status(500).send(err)
             res.status(200).send(results)
         })
+    },
+    getAllCart: (req, res) => {
+        const queryGetAllCart = `SELECT COUNT(id) as jumlahcart FROM cart`;
+        database.query(queryGetAllCart, (err, results) => {
+            if(err) {
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
     }
 }

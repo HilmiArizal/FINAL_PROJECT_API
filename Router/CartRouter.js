@@ -8,5 +8,6 @@ router.get('/getCart', auth, cartContoller.getCart)
 router.get('/getValueCart', auth, cartContoller.getValueCart)
 router.delete('/deleteCart', cartContoller.deleteCart)
 router.delete('/deleteCartUserId', cartContoller.deleteCartUserId)
+router.get('/getAllCart', cartContoller.getAllCart)
 
 module.exports = router;

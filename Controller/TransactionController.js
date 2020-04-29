@@ -7,7 +7,7 @@ module.exports = {
         const queryGetAllTransactionPaid = `SELECT tr.id AS idtransaction, tr.userId,tr.totaltransaction,tr.status,tr.datetransaction, tr.imagePath AS buktitransaksi, u.*
         FROM transaction tr
         JOIN users u ON tr.userId = u.id
-        WHERE status = "PAID";`
+        WHERE status = "PAID" ORDER BY tr.id DESC limit ${req.query.limit} offset ${req.query.offset};`
         database.query(queryGetAllTransactionPaid, (err, results) => {
             if (err) return res.status(500).send(err)
             res.status(200).send(results)
@@ -28,7 +28,7 @@ module.exports = {
         const getTransaction = `SELECT u.*, tr.id AS idtransaction, tr.totaltransaction, tr.status, tr.datetransaction, tr.timescart, tr.metodetransaksiId, tr.imagePath
         FROM transaction tr
         JOIN users u ON tr.userId = u.id
-        WHERE tr.userId = ${req.user.id}`
+        WHERE tr.userId = ${req.user.id} ORDER BY tr.id DESC limit ${req.query.limit} offset ${req.query.offset}`
         database.query(getTransaction, (err, results) => {
             if (err) {
                 return res.status(500).send(err)
@@ -39,7 +39,7 @@ module.exports = {
     getTransactionGroupByDate: (req, res) => {
         const queryGetTransactionDate = `SELECT * FROM transaction GROUP BY datetransaction`
         database.query(queryGetTransactionDate, (err, results) => {
-            if(err) return res.status(500).send(err)
+            if (err) return res.status(500).send(err)
             res.status(200).send(results)
         })
     },
@@ -98,7 +98,6 @@ module.exports = {
             JOIN stock st ON dt.stockId = st.id
             WHERE dt.transactionId = ${req.body.transactionId};`
             database.query(queryGetStock, (err, results2) => {
-                console.log('stock', results2)
                 if (err) {
                     // console.log(err)
                     return res.status(500).send(err)
@@ -136,8 +135,26 @@ module.exports = {
             res.status(200).send(results)
         })
     },
+    getAllTotalTransactionWithoutDate: (req, res) => {
+        const queryGetAllTotal = `SELECT SUM(totaltransaction) AS alltotaltransaction FROM transaction WHERE status = "PAID";`
+        database.query(queryGetAllTotal, (err, results) => {
+            if (err) {
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
     getAllTotalTransactionProses: (req, res) => {
         const queryGetAllTotal = `SELECT SUM(totaltransaction) AS alltotaltransaction, datetransaction FROM transaction WHERE status = "ON PROCESS" GROUP BY datetransaction;`
+        database.query(queryGetAllTotal, (err, results) => {
+            if (err) {
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    getAllTotalTransactionProsesWithoutDate: (req, res) => {
+        const queryGetAllTotal = `SELECT SUM(totaltransaction) AS alltotaltransaction FROM transaction WHERE status = "ON PROCESS";`
         database.query(queryGetAllTotal, (err, results) => {
             if (err) {
                 return res.status(500).send(err)
@@ -161,6 +178,15 @@ module.exports = {
     getMetodeTransaction: (req, res) => {
         const queryGetMetodeTransaction = `SELECT * FROM metodetransaksi`
         database.query(queryGetMetodeTransaction, (err, results) => {
+            if (err) {
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    getSalesProduct: (req, res) => {
+        const queryGetSalesProduct = `SELECT SUM(qty) AS salesproduct FROM detailtransaction`;
+        database.query(queryGetSalesProduct, (err, results) => {
             if (err) {
                 return res.status(500).send(err)
             }

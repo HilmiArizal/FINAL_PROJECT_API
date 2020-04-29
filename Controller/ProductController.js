@@ -23,74 +23,6 @@ module.exports = {
             res.status(200).send(results)
         })
     },
-    getGroupByCategory: (req, res) => {
-        // console.log(req.query)
-        const query = `SELECT p.*, c.id AS idcategory, c.category, pr.id, pr.price, s.id AS idsize, s.size, st.id AS idstock, st.productId, st.sizeId, st.priceId, st.jumlahstock FROM products p
-        JOIN categories c ON p.productcategoryId = c.id
-        JOIN stock st ON p.id = st.productId
-        JOIN size s ON st.sizeId = s.id
-        JOIN price pr ON st.priceId = pr.id
-        GROUP BY c.category
-        ORDER BY c.category DESC`
-        database.query(query, (err, results) => {
-            if (err) return res.status(500).send(err)
-            res.status(200).send(results)
-        })
-    },
-    getCategory: (req, res) => {
-        // console.log(req.query)
-        const query = `SELECT * FROM categories`
-        database.query(query, (err, results) => {
-            if (err) return res.status(500).send(err)
-            res.status(200).send(results)
-        })
-    },
-    getProductCategory: (req, res) => {
-        const query = `SELECT p.*, c.id AS idcategory, c.category, c.imagecategory
-        FROM products p
-        LEFT JOIN categories c ON p.productcategoryId = c.id;`
-        database.query(query, (err, results) => {
-            if (err) return res.status(500).send(err)
-            res.status(200).send(results)
-        })
-    },
-    getSize: (req, res) => {
-        // console.log(req.query)
-        const query = `SELECT * FROM size`
-        database.query(query, (err, results) => {
-            if (err) return res.status(500).send(err)
-            res.status(200).send(results)
-        })
-    },
-    getPrice: (req, res) => {
-        // console.log(req.query)
-        const query = `SELECT * FROM price`
-        database.query(query, (err, results) => {
-            if (err) return res.status(500).send(err)
-            res.status(200).send(results)
-        })
-    },
-    getStock: (req, res) => {
-        // console.log(req.query)
-        const query = `SELECT * FROM stock`
-        database.query(query, (err, results) => {
-            if (err) return res.status(500).send(err)
-            res.status(200).send(results)
-        })
-    },
-    getStockId: (req, res) => {
-        const id = req.params.id
-        // console.log(req.query)
-        const queryStockId = `SELECT st.*, s.id AS idnyasize, s.size, p.id AS idnyaprice, p.price
-        FROM stock st
-        LEFT JOIN size s ON st.sizeId = s.id 
-        LEFT JOIN price p ON st.priceId = p.id
-        WHERE st.productId = ${id};`
-        database.query(queryStockId, (err, results) => {
-            if (err) return res.status(500).send(err)
-            res.status(200).send(results)
-        })
-    },
     getProductId: (req, res) => {
         const id = req.query.id
         // console.log(id)
@@ -166,15 +98,6 @@ module.exports = {
             })
         })
     },
-    DeleteStocks: (req, res) => {
-        // console.log(req.params)
-        const stockId = parseInt(req.params.id)
-        const queryDeleteProduct = `DELETE FROM stock WHERE id = ${req.query.id}`
-        database.query(queryDeleteProduct, [stockId], (err, results) => {
-            if (err) return res.status(500).send(err)
-            res.status(200).send(results)
-        })
-    },
     EditProducts: (req, res) => {
         // console.log(req.body)
         try {
@@ -225,9 +148,9 @@ module.exports = {
                                             return res.status(500).send(err)
                                         }
                                         if (image) {
-                                            if(results2[0].imagePath === 0){
+                                            if (results2[0].imagePath === 0) {
                                                 return null
-                                            }else{
+                                            } else {
                                                 fs.unlinkSync('./Public' + results2[0].imagePath)
 
                                             }
@@ -250,5 +173,196 @@ module.exports = {
             return res.status(500).send(err)
         }
     },
-
+    getGroupByCategory: (req, res) => {
+        // console.log(req.query)
+        const query = `SELECT p.*, c.id AS idcategory, c.category, pr.id, pr.price, s.id AS idsize, s.size, st.id AS idstock, st.productId, st.sizeId, st.priceId, st.jumlahstock FROM products p
+        JOIN categories c ON p.productcategoryId = c.id
+        JOIN stock st ON p.id = st.productId
+        JOIN size s ON st.sizeId = s.id
+        JOIN price pr ON st.priceId = pr.id
+        GROUP BY c.category
+        ORDER BY c.category DESC`
+        database.query(query, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    getProductCategory: (req, res) => {
+        const query = `SELECT p.*, c.id AS idcategory, c.category, c.imagecategory
+        FROM products p
+        LEFT JOIN categories c ON p.productcategoryId = c.id;`
+        database.query(query, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    getCategory: (req, res) => {
+        // console.log(req.query)
+        const query = `SELECT * FROM categories`
+        database.query(query, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    addCategory: (req, res) => {
+        const { category } = req.body;
+        console.log(req.body)
+        const queryAddCategory = `INSERT INTO categories (category) VALUES ('${category}')`;
+        database.query(queryAddCategory, (err, results) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    editCategory: (req, res) => {
+        const id = parseInt(req.params.id);
+        const { category } = req.body;
+        const queryEditCategory = `UPDATE categories SET category = '${category}' WHERE id = ${id}`;
+        database.query(queryEditCategory, (err, results) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    deleteCategory: (req, res) => {
+        const id = parseInt(req.params.id);
+        const queryDeleteCategory = `DELETE FROM categories WHERE id = ${id}`;
+        database.query(queryDeleteCategory, (err, results) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    getSize: (req, res) => {
+        // console.log(req.query)
+        const query = `SELECT * FROM size`
+        database.query(query, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    addSize: (req, res) => {
+        console.log('masuk')
+        const { size } = req.body;
+        const queryAddSize = `INSERT INTO size (size) VALUES ('${size}')`;
+        database.query(queryAddSize, (err, results) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    editSize: (req, res) => {
+        const id = parseInt(req.params.id);
+        const { size } = req.body;
+        const queryEditSize = `UPDATE size SET size = '${size}' WHERE id = ${id}`;
+        database.query(queryEditSize, (err, results) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    deleteSize: (req, res) => {
+        const id = parseInt(req.params.id);
+        const queryDeleteSize = `DELETE FROM size WHERE id = ${id}`;
+        database.query(queryDeleteSize, (err, results) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    getPrice: (req, res) => {
+        // console.log(req.query)
+        const query = `SELECT * FROM price`
+        database.query(query, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    addPrice: (req, res) => {
+        console.log('masuk')
+        const { price } = req.body;
+        const queryAddPrice = `INSERT INTO price (price) VALUES ('${price}')`;
+        database.query(queryAddPrice, (err, results) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    editPrice: (req, res) => {
+        const id = parseInt(req.params.id);
+        const { price } = req.body;
+        const queryEditPrice = `UPDATE price SET price = '${price}' WHERE id = ${id}`;
+        database.query(queryEditPrice, (err, results) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    deletePrice: (req, res) => {
+        const id = parseInt(req.params.id);
+        const queryDeletePrice = `DELETE FROM price WHERE id = ${id}`;
+        database.query(queryDeletePrice, (err, results) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    getStock: (req, res) => {
+        // console.log(req.query)
+        const query = `SELECT * FROM stock`
+        database.query(query, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    getAllJumlahStock: (req, res) => {
+        const query = `SELECT SUM(jumlahstock) AS totalstock FROM stock`
+        database.query(query, (err, results) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send(err)
+            }
+            res.status(200).send(results)
+        })
+    },
+    getStockId: (req, res) => {
+        const id = req.params.id
+        // console.log(req.query)
+        const queryStockId = `SELECT st.*, s.id AS idnyasize, s.size, p.id AS idnyaprice, p.price
+        FROM stock st
+        LEFT JOIN size s ON st.sizeId = s.id 
+        LEFT JOIN price p ON st.priceId = p.id
+        WHERE st.productId = ${id};`
+        database.query(queryStockId, (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    },
+    DeleteStocks: (req, res) => {
+        // console.log(req.params)
+        const stockId = parseInt(req.params.id)
+        const queryDeleteProduct = `DELETE FROM stock WHERE id = ${req.query.id}`
+        database.query(queryDeleteProduct, [stockId], (err, results) => {
+            if (err) return res.status(500).send(err)
+            res.status(200).send(results)
+        })
+    }
 }

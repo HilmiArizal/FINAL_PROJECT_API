@@ -12,9 +12,12 @@ router.get('/getDetailTransaction', transactionController.getDetailTransaction);
 router.post('/addDetailTransaction', transactionController.addDetailTransaction);
 router.put('/editStatus', transactionController.editStatus);
 router.get('/getAllTotal', transactionController.getAllTotalTransaction)
+router.get('/getAllTotalWithoutDate', transactionController.getAllTotalTransactionWithoutDate)
 router.get('/getAllTotalProses', transactionController.getAllTotalTransactionProses)
+router.get('/getAllTotalProsesWithoutDate', transactionController.getAllTotalTransactionProsesWithoutDate)
 router.get('/getProductPopuler', transactionController.getProductPopuler)
 router.get('/getMetodeTransaksi', transactionController.getMetodeTransaction)
+router.get('/getSalesProduct', transactionController.getSalesProduct)
 
 
 module.exports = router;
